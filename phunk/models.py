@@ -894,14 +894,14 @@ class SOCCA:
         upper_bounds = np.array([upper[k] for k in param_names])
 
         # Diagnostic
-        for name, x0, lo, hi in zip(
-            param_names, initial_guess, lower_bounds, upper_bounds
+        for i, (name, x0, lo, hi) in enumerate(
+            zip(param_names, initial_guess, lower_bounds, upper_bounds)
         ):
             if not (lo <= x0 <= hi):
                 print(
-                    f"Initial guess for {name} out of bounds: {x0} not in [{lo}, {hi}]"
+                    f"Initial guess for {name} out of bounds: {x0} not in [{lo}, {hi}] \n Setting to midpoint"
                 )
-        # print(initial_guess)
+                initial_guess[i] = (lo + hi) / 2
         out = least_squares(
             residual_socca,
             x0=initial_guess,

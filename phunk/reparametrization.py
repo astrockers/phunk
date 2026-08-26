@@ -21,6 +21,8 @@ def sigmoid(x):
     # except RuntimeWarning:
     #     print(x)
     return 1 / (1 + np.exp(-x))
+
+
 def sc_sigmoid(x, C=-0.429, R=1.429 + np.abs(-0.429), k=1, In=0):
     """
     Compute the scaled sigmoid function.
@@ -138,7 +140,7 @@ def build_bounds(bounds=None, remap=False):
     if bounds is None:
         bounds = (
             [-3, GMIN, GMIN, 0, -np.pi / 2, 2.2 / 24.0, 1, 1, -np.pi / 2, -np.inf],
-            [30, GMAX, GMAX, 2 * np.pi, np.pi / 2, 1000, 5, 5, np.pi / 2, np.inf],
+            [30, GMAX, GMAX, 2 * np.pi, np.pi / 2, 10000, 5, 5, np.pi / 2, np.inf],
         )
         lower_bounds = np.array(bounds[0])
         upper_bounds = np.array(bounds[1])
@@ -347,6 +349,7 @@ def prop_ac_err(a_b, u_a_c, err_u_a_c, err_a_b):
     err_a_c = np.sqrt(term1 + term2 + term3)
     return err_a_c
 
+
 def propagate_errors(params_dict, err_dict, filt_names=None):
     """
     Propagate errors from a dictionary of fit parameters to physical parameters,
@@ -391,7 +394,9 @@ def propagate_errors(params_dict, err_dict, filt_names=None):
 
     a_b_phys = 4 * sigmoid(u_a_b) + 1
     err_ab_phys = prop_ab_err(u_a_b=u_a_b, err_u_a_b=err_u_a_b)
-    err_ac_phys = prop_ac_err(a_b=a_b_phys, u_a_c=u_a_c, err_u_a_c=err_u_a_c, err_a_b=err_u_a_b)
+    err_ac_phys = prop_ac_err(
+        a_b=a_b_phys, u_a_c=u_a_c, err_u_a_c=err_u_a_c, err_a_b=err_u_a_b
+    )
     out_errs["a_b"] = err_ab_phys
     out_errs["a_c"] = err_ac_phys
 
@@ -404,13 +409,15 @@ def propagate_errors(params_dict, err_dict, filt_names=None):
     # Filter-dependent
     for band in filt_names:
         # H = params_dict.get(f"H{band}", None)
-        G1 = params_dict.get(f"u_G1{band}", None) 
-        G2 = params_dict.get(f"u_G2{band}", None) 
+        G1 = params_dict.get(f"u_G1{band}", None)
+        G2 = params_dict.get(f"u_G2{band}", None)
 
         err_H = err_dict.get(f"H{band}", None)
         err_G1 = prop_G1_err(u_G1=G1, err_u_G1=err_dict.get(f"u_G1{band}", None))
         G1_phys = sc_sigmoid(G1)
-        err_G2 = prop_G2_err(G1=G1_phys, u_G2=G2, err_u_G2=err_dict.get(f"u_G2{band}", None))
+        err_G2 = prop_G2_err(
+            G1=G1_phys, u_G2=G2, err_u_G2=err_dict.get(f"u_G2{band}", None)
+        )
 
         out_errs[f"H{band}"] = err_H
         out_errs[f"G1{band}"] = err_G1
@@ -420,6 +427,7 @@ def propagate_errors(params_dict, err_dict, filt_names=None):
     out_errs["t0"] = err_dict.get("t0", None)
 
     return out_errs
+
 
 def parameter_remapping(
     pars,
@@ -448,7 +456,7 @@ def parameter_remapping(
     """
     pars_out = {}
     pars = dict(pars)
-    
+
     # -----------------------------
     # Angles / period
     # -----------------------------
@@ -572,16 +580,12 @@ def parameter_remapping(
 
 
 def lmfit_to_dict(params):
-    """
-    
-    """
+    """ """
     return {name: p.value for name, p in params.items()}
 
 
 def dict_to_lmfit(par_dict, template_params):
-    """
-    
-    """
+    """ """
 
     new_params = lmfit.Parameters()
 
