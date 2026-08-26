@@ -124,9 +124,13 @@ class PhaseCurve:
 
         return model_obj.eval(self, **kwargs)
 
-    def get_ephems(self):
+    def get_ephems(self, observer="500"):
         """Query ephemerides of target at time of observation.
 
+        Parameters
+        ----------
+        observer : str
+            The observer.
         Note
         ----
         Sets the 'phase', 'ra', and 'dec' attributes. Requires internet connection.
@@ -134,7 +138,7 @@ class PhaseCurve:
         c_AU_day = 173.14463267424034  # c in AU/day
 
         print("Querying ephemerides via IMCCE Miriade..")
-        ephem = phunk.miriade.query(self.target.name, self.epoch)
+        ephem = phunk.miriade.query(self.target.name, self.epoch, observer=observer)
 
         self.phase = ephem["Phase"].values
         self.ra = ephem["RA"].values

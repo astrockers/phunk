@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 
-def query(name, epochs):
+def query(name, epochs, observer="500"):
     """Gets asteoid ephemerides from VOSSP Miriade.
 
     Parameters
@@ -12,7 +12,8 @@ def query(name, epochs):
         Name or designation of asteroid.
     epochs : list
         List of observation epochs in JD format.
-
+    observer " str
+        Name of observer, default 500
     Returns
     -------
     pd.DataFrame - Input dataframe with ephemerides columns appended
@@ -40,10 +41,10 @@ def query(name, epochs):
         "-rplane": "1",
         "-tcoor": 5,
         "-output": "--jd",
-        "-observer": "500",
+        "-observer": observer,
         "-tscale": "UTC",
     }
-    params['-output'] += f",--iofile(ephemcc-photom.xml)"
+    params["-output"] += f",--iofile(ephemcc-photom.xml)"
 
     # Execute query
     try:
